@@ -1,11 +1,10 @@
 import mongoose from "mongoose";
 import app from "./app.js";
+import config from "./config/index.js";
 
 (async () => {
   try {
-    await mongoose.connect(
-      "mongodb+srv://alayuestifanos:almazalmaz@cluster0.fn2pugc.mongodb.net/eccom"
-    );
+    await mongoose.connect(config.MONGODB_URL);
     console.log("DB CONNECTED!");
 
     app.on("error", (err) => {
@@ -14,10 +13,10 @@ import app from "./app.js";
     });
 
     const onListening = () => {
-      console.log("Listening on port 5000");
+      console.log(`Listening on port ${config.PORT}`);
     };
 
-    app.listen(5000, onListening);
+    app.listen(config.PORT, onListening);
   } catch (error) {
     console.error("Error: " + error);
     throw error;
