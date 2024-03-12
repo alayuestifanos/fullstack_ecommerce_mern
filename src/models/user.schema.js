@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import bcyrpt from "bcryptjs";
 
 import AuthRoles from "../utils/authRoles.js";
 
@@ -29,4 +30,17 @@ const userSchema = new mongoose.Schema({
   forgotPasswordExpriry: Date,
 });
 
+// hooks
+userSchema.pre("save", async function (next) {
+  if (!this.isModified("password")) return next();
+  this.password = await bcyrpt.hash(this.password, 12);
+  next();
+});
+
+// methods
+userSchema.methods = {
+  comparePassword: async function (enteredPassword) {
+    return await bcyrpt.compare(enteredPassword, this.password);
+  },
+};
 export default mongoose.model();
