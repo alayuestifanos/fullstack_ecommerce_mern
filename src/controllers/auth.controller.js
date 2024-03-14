@@ -29,3 +29,36 @@ export const signUp = asyncHandler(async (req, res) => {
   //   send back a response to the user
   res.status(200).json({ success: true, token, user });
 });
+
+export const login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
+
+  // validation
+  if (!email || !password) {
+    throw new CustomError("Please fill all details", 400);
+  }
+
+  const user = User.findOne({ email }).select("+password");
+  if (!user) {
+    throw new CustomError("Invalid credential", 400);
+  }
+
+  const isPasswordMatch = await user.comparePassword(password);
+
+  if (isPasswordMatch) {
+    const token = user.getJwtToken();
+    user.password = undefined;
+    res.cookie("token", token, cookieOptions);
+    return res.status(200).json({ success: true, token, user });
+  }
+
+  throw new CustomError("Password is incorrect", 400);
+});
+
+export const logout = async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+    httpOnly: true,
+  });
+  res.status(200).json({ success: true, message: "logged out" });
+};
