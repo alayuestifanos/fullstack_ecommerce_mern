@@ -1,17 +1,17 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
 const productSchema = new mongoose.Schema(
   {
     name: {
       type: String,
       trim: true,
-      required: [true, "Name must be provided"],
-      maxLength: [120, "Product name should not be max than 120 chars"],
+      required: [true, 'Name must be provided'],
+      maxLength: [120, 'Product name should not be max than 120 chars'],
     },
     price: {
       type: Number,
-      required: [true, "Price must be provided"],
-      maxLength: [5, "Product price should not be max than 5 chars"],
+      required: [true, 'Price must be provided'],
+      maxLength: [5, 'Product price should not be max than 5 chars'],
     },
     description: {
       type: String,
@@ -20,7 +20,7 @@ const productSchema = new mongoose.Schema(
       {
         secure_url: {
           type: String,
-          required: [true, "Every product must have at least one url"],
+          required: [true, 'Every product must have at least one url'],
         },
       },
     ],
@@ -34,12 +34,19 @@ const productSchema = new mongoose.Schema(
     },
     collectionId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Collection",
+      ref: 'Collection',
+    },
+    image: { type: String, required: [true, 'Image URL is required'] },
+    rating: {
+      type: Number,
+      min: [0, 'Rating can not be negative'],
+      max: [5, 'Rating can not exceed 5'],
+      default: 0,
     },
   },
   {
     timestamps: true,
-  }
-);
+  },
+)
 
-export default mongoose.model("Product", productSchema);
+export default mongoose.model('Product', productSchema)
