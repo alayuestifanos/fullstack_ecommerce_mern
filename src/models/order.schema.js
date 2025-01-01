@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose from 'mongoose'
 
 const orderSchema = new mongoose.Schema({
   product: {
@@ -6,7 +6,7 @@ const orderSchema = new mongoose.Schema({
       {
         productId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
+          ref: 'Product',
         },
         count: Number,
         price: Number,
@@ -16,12 +16,15 @@ const orderSchema = new mongoose.Schema({
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
   },
-  address: {
-    type: String,
-    required: true,
+  shippingAddress: {
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    zip: { type: String, required: true },
+    country: { type: String, default: 'United States' },
   },
   phoneNumber: {
     type: Number,
@@ -34,9 +37,13 @@ const orderSchema = new mongoose.Schema({
   transactionId: String,
   status: {
     type: String,
-    enum: ["ORDERED", "SHIPPED", "DELIVERED", "CANCELLED"],
-    default: "ORDERED",
+    enum: ['pending', 'processing', 'shipped', 'delivered', 'cancelled'],
+    default: 'pemding',
   },
-});
+  paymentMethod: {
+    type: String,
+    default: 'card',
+  },
+})
 
-export default mongoose.model("Order", orderSchema);
+export default mongoose.model('Order', orderSchema)
