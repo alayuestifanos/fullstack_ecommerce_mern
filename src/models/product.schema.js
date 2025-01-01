@@ -43,6 +43,16 @@ const productSchema = new mongoose.Schema(
       max: [5, 'Rating can not exceed 5'],
       default: 0,
     },
+    reviews: {
+      type: Number,
+      min: [0, 'Reviews can not be negative'],
+      default: 0,
+    },
+    featured: { type: Boolean, default: false },
+    isNew: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,
