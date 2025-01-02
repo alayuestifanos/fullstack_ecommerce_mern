@@ -9,6 +9,8 @@ app.use(cors())
 app.use(cookieParser())
 
 import authRoutes from './routes/auth.routes'
+import productRoutes from './routes/product.routes'
 
 app.use('api/v1/auth', authRoutes)
+app.use('api/v1/product', productRoutes)
 export default app
