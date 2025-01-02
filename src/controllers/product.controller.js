@@ -71,3 +71,23 @@ export const getProduct = asyncHandler(async (req, res) => {
   }
   res.status(200).json({ success: true, product })
 })
+
+export const updateProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  if (req.user.role !== 'admin') {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Admin access required' })
+  }
+  let product = await Product.findById(id)
+  if (!product) {
+    return res
+      .status(404)
+      .json({ success: false, message: 'Product not found' })
+  }
+  product = await Product.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  })
+  res.status(200).json({ success: true, product })
+})
