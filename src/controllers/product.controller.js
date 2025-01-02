@@ -60,3 +60,14 @@ export const createProduct = asyncHandler(async (req, res) => {
   const product = await Product.create(req.body)
   res.status(201).json({ success: true, product })
 })
+
+export const getProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const product = await Product.findById(id)
+  if (!product) {
+    return res
+      .status(404)
+      .json({ success: false, message: 'Product not found' })
+  }
+  res.status(200).json({ success: true, product })
+})
