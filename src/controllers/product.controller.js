@@ -109,3 +109,27 @@ export const deleteProduct = asyncHandler(async (req, res) => {
     .status(200)
     .json({ success: true, message: 'Product deleted successfully' })
 })
+
+export const productSummary = asyncHandler(async (req, res) => {
+  if (req.user.role !== 'admin') {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Admin access required' })
+  }
+  const total = await Product.countDocuments()
+  const lowStock = await Product.countDocuments({ stock: { $lt: 10 } })
+  const outOfStock = await Product.countDocuments({ stock: 0 })
+  const byCategory = await Product.aggregate([
+    {
+      $group: {
+        _id: '$category',
+        count: { $sum: 1 },
+        revenue: { $sum: { $multiply: ['$price', '$stock'] } },
+      },
+    },
+  ])
+  res.status(200).json({
+    success: true,
+    stats: { total, lowStock, outOfStock, byCategory },
+  })
+})

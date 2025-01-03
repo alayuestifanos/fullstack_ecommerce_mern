@@ -5,6 +5,7 @@ import {
   getProduct,
   updateProduct,
   deleteProduct,
+  productSummary,
 } from '../controllers/product.controller'
 
 import { isLoggedIn } from '../middlewares/auth.middleware'
@@ -14,7 +15,8 @@ const router = Router()
 router.get('/', getAllProducts)
 router.post('/', isLoggedIn, createProduct)
 router.get('/', getProduct)
-router.put('/:id', updateProduct)
-router.delete('/:id', deleteProduct)
+router.get('/stats/summary', isLoggedIn, productSummary)
+router.put('/:id', isLoggedIn, updateProduct)
+router.delete('/:id', isLoggedIn, deleteProduct)
 
 export default router
