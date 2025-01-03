@@ -91,3 +91,21 @@ export const updateProduct = asyncHandler(async (req, res) => {
   })
   res.status(200).json({ success: true, product })
 })
+
+export const deleteProduct = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  if (req.user.role !== 'admin') {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Admin access required' })
+  }
+  const product = await Product.findByIdAndDelete(id)
+  if (!product) {
+    return res
+      .status(404)
+      .json({ success: false, message: 'Product not found' })
+  }
+  res
+    .status(200)
+    .json({ success: true, message: 'Product deleted successfully' })
+})
