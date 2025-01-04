@@ -1,4 +1,4 @@
-import { Product } from '../models/product.schema'
+import Product from '../models/product.schema'
 import asyncHandler from '../services/asyncHandler'
 
 export const getAllProducts = asyncHandler(async (req, res) => {
