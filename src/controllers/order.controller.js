@@ -138,3 +138,50 @@ export const createOrder = asyncHandler(async (req, res) => {
   )
   res.status(201).json({ success: true, order: populated })
 })
+
+export const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const { status } = req.body
+  if (req.user.role !== 'admin') {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Admin access required' })
+  }
+
+  const validStatuses = [
+    'pending',
+    'processing',
+    'shipped',
+    'delivered',
+    'cancelled',
+  ]
+  if (!validStatuses.includes(status)) {
+    return res.status(400).json({
+      success: false,
+      message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`,
+    })
+  }
+
+  const order = await Order.findById(id)
+  if (!order) {
+    return res.status(404).json({ success: false, message: 'Order not found' })
+  }
+
+  // If cancelling, restore stock
+  if (status === 'cancelled' && order.status !== 'cancelled') {
+    for (const item of order.items) {
+      await Product.findByIdAndUpdate(item.product, {
+        $inc: { stock: item.qty },
+      })
+    }
+  }
+
+  order.status = status
+  await order.save()
+
+  const populated = await Order.findById(order._id).populate(
+    'user',
+    'name email',
+  )
+  res.status(200).json({ success: true, order: populated })
+})
