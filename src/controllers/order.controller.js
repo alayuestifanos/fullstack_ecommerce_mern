@@ -76,3 +76,65 @@ export const getOrderStats = asyncHandler(async (req, res) => {
     },
   })
 })
+
+export const createOrder = asyncHandler(async (req, res) => {
+  const { items, shippingAddress } = req.body
+
+  if (!items || !items.length) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Order must contain at least one item' })
+  }
+  if (!shippingAddress) {
+    return res
+      .status(400)
+      .json({ success: false, message: 'Shipping address is required' })
+  }
+
+  let total = 0
+  const orderItems = []
+
+  for (const item of items) {
+    const product = await Product.findById(item.productId)
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: `Product not found: ${item.productId}`,
+      })
+    }
+    if (product.stock < item.qty) {
+      return res.status(400).json({
+        success: false,
+        message: `Insufficient stock for "${product.name}". Only ${product.stock} available.`,
+      })
+    }
+    orderItems.push({
+      product: product._id,
+      name: product.name,
+      price: product.price,
+      qty: item.qty,
+    })
+    total += product.price * item.qty
+  }
+
+  const order = await Order.create({
+    orderId: await generateOrderId(),
+    user: req.user._id,
+    items: orderItems,
+    total,
+    shippingAddress,
+    status: 'pending',
+  })
+
+  for (const item of items) {
+    await Product.findByIdAndUpdate(item.productId, {
+      $inc: { stock: -item.qty },
+    })
+  }
+
+  const populated = await Order.findById(order._id).populate(
+    'user',
+    'name email',
+  )
+  res.status(201).json({ success: true, order: populated })
+})
