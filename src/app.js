@@ -11,8 +11,10 @@ app.use(cookieParser())
 import authRoutes from './routes/auth.routes'
 import productRoutes from './routes/product.routes'
 import orderRoutes from './routes/orderRoutes'
+import reviewRoutes from './routes/review.routes'
 
 app.use('api/v1/auth', authRoutes)
 app.use('api/v1/product', productRoutes)
 app.use('api/v1/order', orderRoutes)
+app.use('/api/v1/reviews', reviewRoutes)
 export default app
