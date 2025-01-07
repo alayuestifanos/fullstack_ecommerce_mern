@@ -93,3 +93,21 @@ export const updateReview = asyncHandler(async (req, res) => {
   const populated = await review.populate('user', 'name')
   res.status(200).json({ success: true, review: populated })
 })
+
+export const deleteReview = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const review = await Review.findById(id)
+  if (!review) {
+    return res.status(404).json({ success: false, message: 'Review not found' })
+  }
+  if (
+    review.user.toString() !== req.user._id.toString() &&
+    req.user.role !== 'admin'
+  ) {
+    return res.status(403).json({ success: false, message: 'Not authorized' })
+  }
+  const productId = review.product
+  await review.deleteOne()
+  await Review.recalcProductRating(productId)
+  res.status(200).json({ success: true, message: 'Review deleted' })
+})
