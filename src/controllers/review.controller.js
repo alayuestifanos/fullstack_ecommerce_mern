@@ -111,3 +111,24 @@ export const deleteReview = asyncHandler(async (req, res) => {
   await Review.recalcProductRating(productId)
   res.status(200).json({ success: true, message: 'Review deleted' })
 })
+
+export const getAllReviews = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, status } = req.query
+  let query = {}
+  if (status) query.status = status
+  if (req.user.role !== 'admin') {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Admin access required' })
+  }
+
+  const reviews = await Review.find(query)
+    .populate('user', 'name email')
+    .populate('product', 'name image')
+    .sort('-createdAt')
+    .skip((parseInt(page) - 1) * parseInt(limit))
+    .limit(parseInt(limit))
+
+  const total = await Review.countDocuments(query)
+  res.status(200).json({ success: true, count: reviews.length, total, reviews })
+})
