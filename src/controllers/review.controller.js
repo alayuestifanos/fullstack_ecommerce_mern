@@ -1,7 +1,7 @@
 import Review from '../models/reviews.schema'
 import asyncHandler from '../services/asyncHandler'
 
-export const GetProductReviews = asyncHandler(async (req, res) => {
+export const getProductReviews = asyncHandler(async (req, res) => {
   const { productId: id } = req.params
   const { page = 1, limit = 20, sort = '-createdAt' } = req.query
   const skip = (parseInt(page) - 1) * parseInt(limit)
@@ -31,7 +31,7 @@ export const GetProductReviews = asyncHandler(async (req, res) => {
   })
 })
 
-export const CreateReview = asyncHandler(async (req, res) => {
+export const createReview = asyncHandler(async (req, res) => {
   const { rating, title, comment } = req.body
   const { productId: id } = req.params
 
@@ -68,4 +68,28 @@ export const CreateReview = asyncHandler(async (req, res) => {
 
   const populated = await review.populate('user', 'name')
   res.status(201).json({ success: true, review: populated })
+})
+
+export const updateReview = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  const { rating, title, comment } = req.body
+  const review = await Review.findById(id)
+
+  if (!review) {
+    return res.status(404).json({ success: false, message: 'Review not found' })
+  }
+  if (review.user.toString() !== req.user._id.toString()) {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Not authorized to edit this review' })
+  }
+
+  review.rating = rating ?? review.rating
+  review.title = title ?? review.title
+  review.comment = comment ?? review.comment
+  await review.save()
+
+  await Review.recalcProductRating(review.product)
+  const populated = await review.populate('user', 'name')
+  res.status(200).json({ success: true, review: populated })
 })
