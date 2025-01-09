@@ -1,9 +1,10 @@
 import { Router } from 'express'
-import { getWishList } from '../controllers/wishList.controller'
+import { addToWishList, getWishList } from '../controllers/wishList.controller'
 import { isLoggedIn } from '../middlewares/auth.middleware'
 
 const router = Router()
 
 router.get('/', isLoggedIn, getWishList)
+router.post('/:productId', addToWishList)
 
 export default router

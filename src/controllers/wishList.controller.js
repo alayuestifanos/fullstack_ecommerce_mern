@@ -10,3 +10,24 @@ export const getWishList = asyncHandler(async (req, res) => {
   }
   res.status(200).json({ success: true, wishlist })
 })
+
+export const addToWishList = asyncHandler(async (req, res) => {
+  const { productId: id } = req.params
+  let wishlist = await Wishlist.findOne({ user: req.user._id })
+  if (!wishlist) {
+    wishlist = await Wishlist.create({ user: req.user._id, items: [] })
+  }
+
+  const exists = wishlist.items.find((i) => i.product.toString() === id)
+  if (exists) {
+    return res
+      .status(409)
+      .json({ success: false, message: 'Already in wishlist' })
+  }
+
+  wishlist.items.push({ product: id })
+  await wishlist.save()
+  await wishlist.populate('items.product')
+
+  res.status(201).json({ success: true, wishlist })
+})
