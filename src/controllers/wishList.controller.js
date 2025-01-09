@@ -48,3 +48,13 @@ export const removeFromWishList = asyncHandler(async (req, res) => {
 
   res.status(200).json({ success: true, wishlist })
 })
+
+export const checkProductInWhishList = asyncHandler(async (req, res) => {
+  const { productId: id } = req.params
+
+  const wishlist = await Wishlist.findOne({ user: req.user._id })
+  const inWishlist = wishlist
+    ? wishlist.items.some((i) => i.product.toString() === id)
+    : false
+  res.json(200).json({ success: true, inWishlist })
+})
