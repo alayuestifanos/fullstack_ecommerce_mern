@@ -31,3 +31,20 @@ export const addToWishList = asyncHandler(async (req, res) => {
 
   res.status(201).json({ success: true, wishlist })
 })
+
+export const removeFromWishList = asyncHandler(async (req, res) => {
+  const { productId: id } = req.params
+
+  const wishlist = await Wishlist.findOne({ user: req.user._id })
+  if (!wishlist) {
+    return res
+      .status(404)
+      .json({ success: false, message: 'Wishlist not found' })
+  }
+
+  wishlist.items = wishlist.items.filter((i) => i.product.toString() !== id)
+  await wishlist.save()
+  await wishlist.populate('items.product')
+
+  res.status(200).json({ success: true, wishlist })
+})
