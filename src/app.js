@@ -14,6 +14,7 @@ import orderRoutes from './routes/orderRoutes'
 import reviewRoutes from './routes/review.routes'
 import wishListRoutes from './routes/wishList.routes'
 import contactRoutes from './routes/contact.routes'
+import analyticsRoutes from './routes/analytics.routes'
 
 app.use('api/v1/auth', authRoutes)
 app.use('api/v1/product', productRoutes)
@@ -21,4 +22,5 @@ app.use('api/v1/order', orderRoutes)
 app.use('/api/v1/reviews', reviewRoutes)
 app.use('api/v1/wishlist', wishListRoutes)
 app.use('api/v1/contact', contactRoutes)
+app.use('api/v1/dashboard', analyticsRoutes)
 export default app
