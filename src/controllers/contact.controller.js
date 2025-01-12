@@ -33,3 +33,39 @@ export const getAllContact = asyncHandler(async (req, res) => {
     .status(200)
     .json({ success: true, count: messages.length, total, unread, messages })
 })
+
+export const updateContact = asyncHandler(async (req, res) => {
+  const { id } = req.params
+
+  if (req.user.role !== 'admin') {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Admin access required' })
+  }
+  const { status } = req.body
+  const message = await Contact.findById(id)
+  if (!message) {
+    return res
+      .status(404)
+      .json({ success: false, message: 'Message not found' })
+  }
+  message.status = status || message.status
+  await message.save()
+  res.status(200).json({ success: true, message })
+})
+
+export const deleteContact = asyncHandler(async (req, res) => {
+  const { id } = req.params
+  if (req.user.role !== 'admin') {
+    return res
+      .status(403)
+      .json({ success: false, message: 'Admin access required' })
+  }
+  const message = await Contact.findByIdAndDelete(id)
+  if (!message) {
+    return res
+      .status(404)
+      .json({ success: false, message: 'Message not found' })
+  }
+  res.status(200).json({ success: true, message: 'Deleted' })
+})
